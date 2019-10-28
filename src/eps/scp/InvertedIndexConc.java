@@ -27,7 +27,7 @@ public class InvertedIndexConc{
     private RandomAccessFile randomInputFile;  // Fichero random para acceder al texto original con mayor porcentaje de matching.
     private int KeySize;            // Número de carácteres de la clave (k-word)
     private int nThreads;
-    private HashMultimap<String, Long> Hash = HashMultimap.create();    // Hash Map con el Índice Invertido.
+    public HashMultimap<String, Long> Hash = HashMultimap.create();    // Hash Map con el Índice Invertido.
     
     // Constructores
     public InvertedIndexConc() {
@@ -193,8 +193,8 @@ public class InvertedIndexConc{
     // Recibe la ruta del directorio en donde se van a guardar los ficheros del indice.
     public void SaveIndex(String outputDirectory) throws InterruptedException {
         int numberOfFiles, remainingFiles;
-        long remainingKeys = 0, keysByFile = 0, keysxThread = 0, filesxThread = 0;
         String key = "";
+        long remainingKeys = 0, keysxThread = 0, filesxThread = 0;
         Charset utf8 = StandardCharsets.UTF_8;
         Set<String> keySet = Hash.keySet();
         Set<String> keyTSet;
@@ -219,7 +219,7 @@ public class InvertedIndexConc{
                 list.add(key);
                 j++;
             }
-            MyThread t = new MyThread(i, list, filesxThread);
+            MyThread t = new MyThread(i, list, filesxThread,outputDirectory);
             thr.add(t);
             t.thread.start();
         }
