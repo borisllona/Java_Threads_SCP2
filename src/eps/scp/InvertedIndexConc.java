@@ -2,6 +2,7 @@ package eps.scp;
 
 import com.google.common.collect.HashMultimap;
 import org.apache.commons.lang3.StringUtils;
+//import sun.security.mscapi.KeyStore;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -27,7 +28,7 @@ public class InvertedIndexConc{
     private int KeySize;            // Número de carácteres de la clave (k-word)
     private int nThreads;
     private HashMultimap<String, Long> Hash = HashMultimap.create();    // Hash Map con el Índice Invertido.
-
+    
     // Constructores
     public InvertedIndexConc() {
         InputFilePath = null;
@@ -190,51 +191,46 @@ public class InvertedIndexConc{
 
     // Método para salvar en disco el índice invertido.
     // Recibe la ruta del directorio en donde se van a guardar los ficheros del indice.
-    public void SaveIndex(String outputDirectory)
-    {
+    public void SaveIndex(String outputDirectory) throws InterruptedException {
         int numberOfFiles, remainingFiles;
-        long remainingKeys=0, keysByFile=0, keysxThread=0, filesxThread=0;
-        String key="";
+        long remainingKeys = 0, keysByFile = 0, keysxThread = 0, filesxThread = 0;
+        String key = "";
         Charset utf8 = StandardCharsets.UTF_8;
         Set<String> keySet = Hash.keySet();
+        Set<String> keyTSet;
+        ArrayList<MyThread> thr = new ArrayList<MyThread>();
 
         // Calculamos el número de ficheros a crear en función del núemro de claves que hay en el hash.
-        if (keySet.size()>DIndexMaxNumberOfFiles)
+        if (keySet.size() > DIndexMaxNumberOfFiles)
             numberOfFiles = DIndexMaxNumberOfFiles;
         else
             numberOfFiles = keySet.size();
         Iterator keyIterator = keySet.iterator();
-        remainingKeys =  keySet.size();
+        remainingKeys = keySet.size();
         remainingFiles = numberOfFiles;
-        keysxThread = remainingKeys/nThreads;
-        filesxThread = remainingFiles/nThreads;
+        keysxThread = remainingKeys / nThreads;
+        filesxThread = remainingFiles / nThreads;
 
-        // Bucle para recorrer los ficheros de indice a crear.
-        for (int f=1;f<=numberOfFiles;f++)
-        {
+        for (int i = 0; i < nThreads; i++) {
+            int j = 0;
+            ArrayList<String> list = new ArrayList<String>();
+            while (j < keysxThread && keyIterator.hasNext()) {
+                key = (String) keyIterator.next();
+                list.add(key);
+                j++;
+            }
+            MyThread t = new MyThread(i, list, filesxThread);
+            thr.add(t);
+            t.thread.start();
+        }
+        for (MyThread t : thr) {
             try {
-                File KeyFile = new File(outputDirectory + DIndexFilePrefix + String.format("%03d", f));
-                FileWriter fw = new FileWriter(KeyFile);
-                BufferedWriter bw = new BufferedWriter(fw);
-                // Calculamos el número de claves a guardar en este fichero.
-                keysByFile =  remainingKeys / remainingFiles;
-                remainingKeys -= keysByFile;
-                // Recorremos las claves correspondientes a este fichero.
-                while (keyIterator.hasNext() && keysByFile>0) {
-                    key = (String) keyIterator.next();
-                    SaveIndexKey(key,bw);  // Salvamos la clave al fichero.
-                    keysByFile--;
-                }
-                bw.close(); // Cerramos el fichero.
-                remainingFiles--;
-            } catch (IOException e) {
-                System.err.println("Error opening Index file " + outputDirectory + "/IndexFile" + f);
+                t.thread.join();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
-                System.exit(-1);
             }
         }
     }
-
 
     // Método para salvar una clave y sus ubicaciones en un fichero.
     public void SaveIndexKey(String key, BufferedWriter bw)

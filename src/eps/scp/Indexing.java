@@ -45,10 +45,13 @@ public class Indexing {
 
         hash.BuildIndex(); //Se puede hacer concurrente?
 
-        if (args.length > 2)
-            hash.SaveIndex(args[2]);
-        //else
-        hash.PrintIndex();
+        if (args.length > 3)
+            try {
+                hash.SaveIndex(args[3]);
+            }catch (InterruptedException e) { e.printStackTrace(); }
+
+        else
+            hash.PrintIndex();
 
         long stopTime = System.nanoTime();
         System.out.println("Time: "+(stopTime - startTime)*pow(10,-9));
