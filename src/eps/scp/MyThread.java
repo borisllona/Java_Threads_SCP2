@@ -32,7 +32,6 @@ public class MyThread implements Runnable{
 
     @Override
     public void run() {
-        long remainingKeys = this.list.size(), remainingFiles = this.files, keysByFile = 0;
         String key = "";
         Iterator keyIterator = list.iterator();
         for (int f=1;f<=this.files;f++)
@@ -41,18 +40,13 @@ public class MyThread implements Runnable{
                 File KeyFile = new File(outputDirectory + DIndexFilePrefix +n+ String.format("%03d", f));
                 FileWriter fw = new FileWriter(KeyFile);
                 BufferedWriter bw = new BufferedWriter(fw);
-                // Calculamos el número de claves a guardar en este fichero.
-                keysByFile =  remainingKeys / remainingFiles;
-                remainingKeys -= keysByFile;
                 // Recorremos las claves correspondientes a este fichero.
-                while (keyIterator.hasNext() && keysByFile>0) {
+                while (keyIterator.hasNext()) {
                     key = (String) keyIterator.next();
                     SaveIndexKey(key,bw);  // Salvamos la clave al fichero.
-                    keysByFile--;
                 }
                 bw.write(number+"\t");
                 bw.close(); // Cerramos el fichero.
-                remainingFiles--;
             } catch (IOException e) {
                 System.err.println("Error opening Index file " + outputDirectory + "/IndexFile" + f);
                 e.printStackTrace();
