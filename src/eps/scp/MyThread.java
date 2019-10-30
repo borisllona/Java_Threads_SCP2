@@ -18,13 +18,15 @@ public class MyThread implements Runnable{
     public Thread thread;
     private ArrayList<String> list;
     private long files;
+    private String n;
 
-    MyThread(int number, ArrayList<String> list, long files, String outputDirectory ){
+    MyThread(int number, ArrayList<String> list, String outputDirectory ){
         thread = new Thread(this);
         this.number = number;
         this.list = list;
-        this.files = files;
+        this.files = list.size();
         this.outputDirectory = outputDirectory;
+        this.n = "T"+number;
         System.out.println("Thread n"+number+" creado");
     }
 
@@ -32,12 +34,11 @@ public class MyThread implements Runnable{
     public void run() {
         long remainingKeys = this.list.size(), remainingFiles = this.files, keysByFile = 0;
         String key = "";
-
         Iterator keyIterator = list.iterator();
         for (int f=1;f<=this.files;f++)
         {
             try {
-                File KeyFile = new File(outputDirectory + DIndexFilePrefix + String.format("%03d", f));
+                File KeyFile = new File(outputDirectory + DIndexFilePrefix +n+ String.format("%03d", f));
                 FileWriter fw = new FileWriter(KeyFile);
                 BufferedWriter bw = new BufferedWriter(fw);
                 // Calculamos el número de claves a guardar en este fichero.
@@ -49,6 +50,7 @@ public class MyThread implements Runnable{
                     SaveIndexKey(key,bw);  // Salvamos la clave al fichero.
                     keysByFile--;
                 }
+                bw.write(number+"\t");
                 bw.close(); // Cerramos el fichero.
                 remainingFiles--;
             } catch (IOException e) {
@@ -57,6 +59,7 @@ public class MyThread implements Runnable{
                 System.exit(-1);
             }
         }
+
     }
 
 

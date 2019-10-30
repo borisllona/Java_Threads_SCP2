@@ -208,9 +208,18 @@ public class InvertedIndexConc{
         Iterator keyIterator = keySet.iterator();
         remainingKeys = keySet.size();
         remainingFiles = numberOfFiles;
-        keysxThread = remainingKeys / nThreads;
-        filesxThread = remainingFiles / nThreads;
 
+        while(remainingKeys>0){
+            remainingKeys-=nThreads;
+            keysxThread++;
+        }
+        /*  CREC NO NECESARI
+        while(remainingFiles>0){
+            remainingFiles-=nThreads;
+            filesxThread++;
+        }
+        System.out.println(remainingFiles);
+        */
         for (int i = 0; i < nThreads; i++) {
             int j = 0;
             ArrayList<String> list = new ArrayList<String>();
@@ -219,7 +228,7 @@ public class InvertedIndexConc{
                 list.add(key);
                 j++;
             }
-            MyThread t = new MyThread(i, list, filesxThread,outputDirectory);
+            MyThread t = new MyThread(i, list,outputDirectory);
             thr.add(t);
             t.thread.start();
         }
@@ -229,23 +238,6 @@ public class InvertedIndexConc{
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    // Método para salvar una clave y sus ubicaciones en un fichero.
-    public void SaveIndexKey(String key, BufferedWriter bw)
-    {
-        try {
-            Collection<Long> values = Hash.get(key);
-            ArrayList<Long> offList = new ArrayList<Long>(values);
-            // Creamos un string con todos los offsets separados por una coma.
-            String joined = StringUtils.join(offList, ",");
-            bw.write(key+"\t");
-            bw.write(joined+"\n");
-        } catch (IOException e) {
-            System.err.println("Error writing Index file");
-            e.printStackTrace();
-            System.exit(-1);
         }
     }
 
