@@ -6,8 +6,8 @@ public class Indexing {
 
     public static void main(String[] args)
     {
-        //sequential(args);
-        concurrent(args);
+        sequential(args);
+        //concurrent(args);
     }
     private static void sequential(String[] args){
         InvertedIndex hash;
@@ -43,13 +43,12 @@ public class Indexing {
         else
             hash = new InvertedIndexConc(args[0],Integer.parseInt(args[1]) ,Integer.parseInt(args[2])); //Indexing <TextFile> <Number of threads> [<Key_Size>]
 
-        hash.BuildIndex(); //Se puede hacer concurrente?
+        hash.BuildIndex();
 
         if (args.length > 3)
             try {
                 hash.SaveIndex(args[3]);
             }catch (InterruptedException e) { e.printStackTrace(); }
-
         else
             hash.PrintIndex();
 

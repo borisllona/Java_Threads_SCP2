@@ -1,5 +1,6 @@
 package eps.scp;
 
+import com.google.common.collect.HashMultimap;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class MyThread implements Runnable{
+public class MyThread extends InvertedIndexConc implements Runnable{
     public final String DIndexFilePrefix = "/IndexFile";
 
     private int number;
@@ -19,19 +20,22 @@ public class MyThread implements Runnable{
     private ArrayList<String> list;
     private long files;
     private String n;
+    private HashMultimap<String, Long> Hash;
 
-    MyThread(int number, ArrayList<String> list, String outputDirectory ){
+    MyThread(int number, ArrayList<String> list, String outputDirectory, int files, HashMultimap<String, Long> hash){
         thread = new Thread(this);
         this.number = number;
         this.list = list;
-        this.files = list.size();
+        this.files = files;
         this.outputDirectory = outputDirectory;
         this.n = "T"+number;
+        this.Hash = hash;
         System.out.println("Thread n"+number+" creado");
     }
 
     @Override
     public void run() {
+        long remainingKeys = this.list.size(), remainingFiles = this.files, keysByFile = 0;
         String key = "";
         Iterator keyIterator = list.iterator();
         for (int f=1;f<=this.files;f++)
@@ -40,13 +44,17 @@ public class MyThread implements Runnable{
                 File KeyFile = new File(outputDirectory + DIndexFilePrefix +n+ String.format("%03d", f));
                 FileWriter fw = new FileWriter(KeyFile);
                 BufferedWriter bw = new BufferedWriter(fw);
+                // Calculamos el número de claves a guardar en este fichero.
+                keysByFile =  remainingKeys / remainingFiles;
+                remainingKeys -= keysByFile;
                 // Recorremos las claves correspondientes a este fichero.
-                while (keyIterator.hasNext()) {
+                while (keyIterator.hasNext() && keysByFile>0) {
                     key = (String) keyIterator.next();
                     SaveIndexKey(key,bw);  // Salvamos la clave al fichero.
+                    keysByFile--;
                 }
-                bw.write(number+"\t");
                 bw.close(); // Cerramos el fichero.
+                remainingFiles--;
             } catch (IOException e) {
                 System.err.println("Error opening Index file " + outputDirectory + "/IndexFile" + f);
                 e.printStackTrace();
@@ -60,9 +68,8 @@ public class MyThread implements Runnable{
     // Método para salvar una clave y sus ubicaciones en un fichero.
     public void SaveIndexKey(String key, BufferedWriter bw)
     {
-        InvertedIndexConc index = new InvertedIndexConc();
         try {
-            Collection<Long> values = index.Hash.get(key);
+            Collection<Long> values = Hash.get(key);
             ArrayList<Long> offList = new ArrayList<Long>(values);
             // Creamos un string con todos los offsets separados por una coma.
             String joined = StringUtils.join(offList, ",");

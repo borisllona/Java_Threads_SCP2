@@ -1,7 +1,6 @@
 package eps.scp;
 
 import com.google.common.collect.HashMultimap;
-import org.apache.commons.lang3.StringUtils;
 //import sun.security.mscapi.KeyStore;
 
 import java.io.*;
@@ -28,7 +27,7 @@ public class InvertedIndexConc{
     private int KeySize;            // Número de carácteres de la clave (k-word)
     private int nThreads;
     public HashMultimap<String, Long> Hash = HashMultimap.create();    // Hash Map con el Índice Invertido.
-    
+    public int test = 69;
     // Constructores
     public InvertedIndexConc() {
         InputFilePath = null;
@@ -56,7 +55,6 @@ public class InvertedIndexConc{
     public void SetFileName(String inputFile) {
         InputFilePath = inputFile;
     }
-
 
     /* Método para construir el indice invertido, utilizando un HashMap para almacenarlo en memoria */
 
@@ -199,7 +197,6 @@ public class InvertedIndexConc{
         Set<String> keySet = Hash.keySet();
         Set<String> keyTSet;
         ArrayList<MyThread> thr = new ArrayList<MyThread>();
-
         // Calculamos el número de ficheros a crear en función del núemro de claves que hay en el hash.
         if (keySet.size() > DIndexMaxNumberOfFiles)
             numberOfFiles = DIndexMaxNumberOfFiles;
@@ -213,13 +210,12 @@ public class InvertedIndexConc{
             remainingKeys-=nThreads;
             keysxThread++;
         }
-        /*  CREC NO NECESARI
         while(remainingFiles>0){
             remainingFiles-=nThreads;
             filesxThread++;
         }
-        System.out.println(remainingFiles);
-        */
+
+
         for (int i = 0; i < nThreads; i++) {
             int j = 0;
             ArrayList<String> list = new ArrayList<String>();
@@ -228,7 +224,7 @@ public class InvertedIndexConc{
                 list.add(key);
                 j++;
             }
-            MyThread t = new MyThread(i, list,outputDirectory);
+            MyThread t = new MyThread(i, list,outputDirectory,(int) filesxThread,Hash);
             thr.add(t);
             t.thread.start();
         }
