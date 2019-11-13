@@ -62,6 +62,7 @@ public class MyThread implements Runnable{
             }
         }
     }
+    //aver
 
 
     // Método para salvar una clave y sus ubicaciones en un fichero.
