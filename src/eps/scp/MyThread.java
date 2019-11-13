@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class MyThread extends InvertedIndexConc implements Runnable{
+public class MyThread implements Runnable{
     public final String DIndexFilePrefix = "/IndexFile";
 
     private int number;
@@ -23,7 +23,7 @@ public class MyThread extends InvertedIndexConc implements Runnable{
     private HashMultimap<String, Long> Hash;
 
     MyThread(int number, ArrayList<String> list, String outputDirectory, int files, HashMultimap<String, Long> hash){
-        thread = new Thread(this);
+        this.thread = new Thread(this);
         this.number = number;
         this.list = list;
         this.files = files;
@@ -61,6 +61,7 @@ public class MyThread extends InvertedIndexConc implements Runnable{
                 System.exit(-1);
             }
         }
+
 
     }
 
