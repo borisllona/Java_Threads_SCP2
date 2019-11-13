@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class MyThread implements Runnable{
+public class MyThreadI implements Runnable{
     public final String DIndexFilePrefix = "/IndexFile";
 
     private int number;
@@ -22,7 +22,7 @@ public class MyThread implements Runnable{
     private String n;
     private HashMultimap<String, Long> Hash;
 
-    MyThread(int number, ArrayList<String> list, String outputDirectory, int files, HashMultimap<String, Long> hash){
+    MyThreadI(int number, ArrayList<String> list, String outputDirectory, int files, HashMultimap<String, Long> hash){
         this.thread = new Thread(this);
         this.number = number;
         this.list = list;
@@ -62,7 +62,6 @@ public class MyThread implements Runnable{
             }
         }
     }
-    //aver
 
 
     // Método para salvar una clave y sus ubicaciones en un fichero.

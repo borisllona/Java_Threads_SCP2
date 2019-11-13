@@ -196,7 +196,7 @@ public class InvertedIndexConc{
         Charset utf8 = StandardCharsets.UTF_8;
         Set<String> keySet = Hash.keySet();
         Set<String> keyTSet;
-        ArrayList<MyThread> thr = new ArrayList<MyThread>();
+        ArrayList<MyThreadI> thr = new ArrayList<MyThreadI>();
         // Calculamos el número de ficheros a crear en función del núemro de claves que hay en el hash.
         if (keySet.size() > DIndexMaxNumberOfFiles)
             numberOfFiles = DIndexMaxNumberOfFiles;
@@ -224,11 +224,11 @@ public class InvertedIndexConc{
                 list.add(key);
                 j++;
             }
-            MyThread t = new MyThread(i, list,outputDirectory,(int) filesxThread,Hash);
+            MyThreadI t = new MyThreadI(i, list,outputDirectory,(int) filesxThread,Hash);
             thr.add(t);
             t.thread.start();
         }
-        for (MyThread t : thr) {
+        for (MyThreadI t : thr) {
             try {
                 t.thread.join();
             } catch (InterruptedException e) {
@@ -238,8 +238,7 @@ public class InvertedIndexConc{
     }
 
     // Método para cargar en memoria (HashMap) el índice invertido desde su copia en disco.
-    public void LoadIndex(String inputDirectory)
-    {
+    public void LoadIndex(String inputDirectory) {
         File folder = new File(inputDirectory);
         File[] listOfFiles = folder.listFiles();
 
@@ -253,8 +252,7 @@ public class InvertedIndexConc{
                     String keyLine = null;
                     try {
                         // Leemos fichero línea a linea (clave a clave)
-                        while ( (keyLine = bufRead.readLine()) != null)
-                        {
+                        while ((keyLine = bufRead.readLine()) != null) {
                             // Descomponemos la línea leída en su clave (k-word) y offsets
                             String[] fields = keyLine.split("\t");
                             String key = fields[0];
@@ -277,8 +275,6 @@ public class InvertedIndexConc{
             }
         }
     }
-
-
 
     public void Query(String queryString) {
         String queryResult=null;
