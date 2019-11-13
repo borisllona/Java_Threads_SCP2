@@ -61,8 +61,6 @@ public class MyThread implements Runnable{
                 System.exit(-1);
             }
         }
-
-
     }
 
 
