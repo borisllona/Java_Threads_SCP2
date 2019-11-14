@@ -64,12 +64,12 @@ public class InvertedIndexConc{
 
     /* Método para construir el indice invertido, utilizando un HashMap para almacenarlo en memoria */
 
-    public int getThreads(){
+    /*public int getThreads(){
         return this.nThreads;
     }
     public int getKey(){
         return KeySize;
-    }
+    }*/
     public void BuildIndex()
     {
         FileInputStream is;
@@ -268,7 +268,9 @@ public class InvertedIndexConc{
             initialfile += filesxThread;
             thr.add(t);
             t.thread.start();
+
         }
+
         for (MyThreadQ t : thr) {
             try {
                 t.thread.join();
