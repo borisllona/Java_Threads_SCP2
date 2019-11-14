@@ -51,13 +51,25 @@ public class InvertedIndexConc{
         nThreads = numThreads;
         KeySize = keySize;
     }
-
+    public InvertedIndexConc(int numThreads) {
+        nThreads = numThreads;
+    }
+    public InvertedIndexConc(int numThreads, int keySize) {
+        nThreads = numThreads;
+        KeySize = keySize;
+    }
     public void SetFileName(String inputFile) {
         InputFilePath = inputFile;
     }
 
     /* Método para construir el indice invertido, utilizando un HashMap para almacenarlo en memoria */
 
+    public int getThreads(){
+        return this.nThreads;
+    }
+    public int getKey(){
+        return KeySize;
+    }
     public void BuildIndex()
     {
         FileInputStream is;
@@ -239,49 +251,40 @@ public class InvertedIndexConc{
 
     // Método para cargar en memoria (HashMap) el índice invertido desde su copia en disco.
     public void LoadIndex(String inputDirectory) {
+        long filesxThread = 0, initialfile = 0, finalfile = 0;
         File folder = new File(inputDirectory);
         File[] listOfFiles = folder.listFiles();
+        long remainingFiles = listOfFiles.length;
+        ArrayList<MyThreadQ> thr = new ArrayList<MyThreadQ>();
 
-        // Recorremos todos los ficheros del directorio de Indice y los procesamos.
-        for (File file : listOfFiles) {
-            if (file.isFile()) {
-                //System.out.println("Processing file " + folder.getPath() + "/" + file.getName()+" -> ");
-                try {
-                    FileReader input = new FileReader(file);
-                    BufferedReader bufRead = new BufferedReader(input);
-                    String keyLine = null;
-                    try {
-                        // Leemos fichero línea a linea (clave a clave)
-                        while ((keyLine = bufRead.readLine()) != null) {
-                            // Descomponemos la línea leída en su clave (k-word) y offsets
-                            String[] fields = keyLine.split("\t");
-                            String key = fields[0];
-                            String[] offsets = fields[1].split(",");
-                            // Recorremos los offsets para esta clave y los añadimos al HashMap
-                            for (int i = 0; i < offsets.length; i++) {
-                                long offset = Long.parseLong(offsets[i]);
-                                Hash.put(key, offset);
-                            }
-                        }
-                    } catch (IOException e) {
-                        System.err.println("Error reading Index file");
-                        e.printStackTrace();
-                    }
-                } catch (FileNotFoundException e) {
-                    System.err.println("Error opening Index file");
-                    e.printStackTrace();
-                }
-                //System.out.println("");
+       // System.out.println ("file length:" + listOfFiles.length);
+        while(remainingFiles>0){
+            remainingFiles-=nThreads;
+            filesxThread++;
+        }
+        for (int i = 0; i < nThreads; i++){
+            finalfile = initialfile + filesxThread - 1;
+            MyThreadQ t = new MyThreadQ(i, listOfFiles, initialfile, finalfile, Hash);
+            initialfile += filesxThread;
+            thr.add(t);
+            t.thread.start();
+        }
+        for (MyThreadQ t : thr) {
+            try {
+                t.thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
+
     }
 
     public void Query(String queryString) {
         String queryResult=null;
         Map<Long, Integer> offsetsFreq, sorted_offsetsFreq;
 
-        System.out.println ("Searching for query: "+queryString);
 
+        System.out.println ("Searching for query: "+queryString);
         // Split Query in keys & Obtain keys offsets
         offsetsFreq = GetQueryOffsets(queryString);
 

@@ -1,5 +1,6 @@
 package eps.scp;
 
+
 /**
  * Created by Nando on 8/10/19.
  */
@@ -37,8 +38,8 @@ public class Query
         hash.Query(queryString);
     }
     private static void concurrent(String[] args) {
-        int numThreads = 0;
-        InvertedIndex hash;
+
+        InvertedIndexConc hash;
         String queryString=null, indexDirectory=null, fileName=null;
 
         if (args.length <3 || args.length>5)
@@ -49,13 +50,17 @@ public class Query
             indexDirectory = args[1];
         if (args.length > 2)
             fileName = args[2];
-        if (args.length > 3)
-            numThreads = Integer.parseInt(args[3]);
-        if (args.length > 4)
-            hash = new InvertedIndex(Integer.parseInt(args[4]));
+        if (args.length == 4)
+            hash = new InvertedIndexConc(Integer.parseInt(args[3]));
+        else if (args.length >= 5)
+            hash = new InvertedIndexConc(Integer.parseInt(args[3] ,Integer.parseInt(args[4])));
         else
-            hash = new InvertedIndex();
-        System.out.println("NumThreads = " + numThreads);
+            hash = new InvertedIndexConc();
+       /* System.out.println("queryString: " + queryString);
+        System.out.println("indexdire: " + indexDirectory);
+        System.out.println("filename: " + fileName);
+        System.out.println("numtrheads: " + hash.getThreads());
+        System.out.println("key: " + hash.getKey());*/
         hash.LoadIndex(indexDirectory);
         hash.SetFileName(fileName);
         //hash.PrintIndex();
