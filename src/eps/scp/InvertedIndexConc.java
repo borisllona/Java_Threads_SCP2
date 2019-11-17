@@ -217,7 +217,7 @@ public class InvertedIndexConc{
         Iterator keyIterator = keySet.iterator();
         remainingKeys = keySet.size();
         remainingFiles = numberOfFiles;
-
+        //Distribuimos la carga de trabajo de los threads y asignamos los archivos que controla cada uno
         while(remainingKeys>0){
             remainingKeys-=nThreads;
             keysxThread++;
@@ -227,7 +227,9 @@ public class InvertedIndexConc{
             filesxThread++;
         }
 
-
+        //Por cada Hilo que creemos, creamos una instancia de la clase MyThread que contendrá el propio thread y sus parametros
+        //Le asignamos una lista con las Llaves que le tocan y añadimos el thread en otra lista a fin de poder controlar su
+        //fin con la funcion join().
         for (int i = 0; i < nThreads; i++) {
             int j = 0;
             ArrayList<String> list = new ArrayList<String>();

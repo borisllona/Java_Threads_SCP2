@@ -41,6 +41,7 @@ public class MyThreadI implements Runnable{
         for (int f=1;f<=this.files;f++)
         {
             try {
+                //Asignamos un nombre distinto a cada archivo, formado por su ruta, el nombre, numero de thread y numero de fichero dentro del thread.
                 File KeyFile = new File(outputDirectory + DIndexFilePrefix +n+ String.format("%03d", f));
                 FileWriter fw = new FileWriter(KeyFile);
                 BufferedWriter bw = new BufferedWriter(fw);
