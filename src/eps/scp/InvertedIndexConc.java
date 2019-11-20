@@ -227,8 +227,8 @@ public class InvertedIndexConc{
             filesxThread++;
         }
 
-        //Por cada Hilo que creemos, creamos una instancia de la clase MyThread que contendrá el propio thread y sus parametros
-        //Le asignamos una lista con las Llaves que le tocan y añadimos el thread en otra lista a fin de poder controlar su
+        //Por cada Hilo que creemos, creamos una instancia de la clase MyThreadI que contendrá el propio thread y sus parametros
+        //Le asignamos una lista con las llaves que le tocan y añadimos el thread en otra lista a fin de poder controlar su
         //fin con la funcion join().
         for (int i = 0; i < nThreads; i++) {
             int j = 0;
@@ -253,26 +253,32 @@ public class InvertedIndexConc{
 
     // Método para cargar en memoria (HashMap) el índice invertido desde su copia en disco.
     public void LoadIndex(String inputDirectory) {
-        long filesxThread = 0, initialfile = 0, finalfile = 0;
+        long filesxThread = 0, initialfile = 0, finalfile = 0, dif = 0;
         File folder = new File(inputDirectory);
         File[] listOfFiles = folder.listFiles();
         long remainingFiles = listOfFiles.length;
         ArrayList<MyThreadQ> thr = new ArrayList<MyThreadQ>();
 
-       // System.out.println ("file length:" + listOfFiles.length);
+       // repartimos el numero de ficheros restantes para cada uno de los threads
         while(remainingFiles>0){
             remainingFiles-=nThreads;
             filesxThread++;
         }
+        //Creamos una instancia de la clase MyThreadQ que contendrá el método run y un constructor con los parámetros
+        //que utilizara cada thread para cargar en memoria el índice invertido
         for (int i = 0; i < nThreads; i++){
             finalfile = initialfile + filesxThread - 1;
+            if(finalfile > listOfFiles.length){
+                dif = finalfile - listOfFiles.length;
+                finalfile -= dif;
+            }
             MyThreadQ t = new MyThreadQ(i, listOfFiles, initialfile, finalfile, Hash);
             initialfile += filesxThread;
-            thr.add(t);
+            thr.add(t); //añadimos el thread al array de threads
             t.thread.start();
 
         }
-
+        //para cada thread añadido al array controlamos su fin con la funcionn join()
         for (MyThreadQ t : thr) {
             try {
                 t.thread.join();

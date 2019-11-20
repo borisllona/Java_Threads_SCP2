@@ -1,5 +1,6 @@
 package eps.scp;
 
+import static java.lang.Math.pow;
 
 /**
  * Created by Nando on 8/10/19.
@@ -18,6 +19,7 @@ public class Query
     private static void sequential(String[] args) {
         InvertedIndex hash;
         String queryString=null, indexDirectory=null, fileName=null;
+        long startTime = System.nanoTime();
 
         if (args.length <2 || args.length>4)
             System.err.println("Erro in Parameters. Usage: Query <String> <IndexDirectory> <filename> [<Key_Size>]");
@@ -36,11 +38,14 @@ public class Query
         hash.SetFileName(fileName);
         //hash.PrintIndex();
         hash.Query(queryString);
+        long stopTime = System.nanoTime();
+        System.out.println("Time: "+(stopTime - startTime)*pow(10,-9));
     }
     private static void concurrent(String[] args) {
 
         InvertedIndexConc hash;
         String queryString=null, indexDirectory=null, fileName=null;
+        long startTime = System.nanoTime();
 
         if (args.length <3 || args.length>5)
             System.err.println("Erro in Parameters. Usage: Query <String> <IndexDirectory> <filename> <numThreads> [<Key_Size>]");
@@ -65,6 +70,8 @@ public class Query
         hash.SetFileName(fileName);
         //hash.PrintIndex();
         hash.Query(queryString);
+        long stopTime = System.nanoTime();
+        System.out.println("Time: "+(stopTime - startTime)*pow(10,-9));
     }
 
 }
