@@ -25,7 +25,9 @@ public class MyThreadQ implements Runnable {
         this.n = "T" + number;
         System.out.println("Thread n" + number + " creado");
     }
-
+    public HashMultimap<String, Long> getHash(){
+        return this.Hash;
+    }
     @Override
     public void run() {
         // Recorremos todos los ficheros del directorio de Indice y los procesamos.

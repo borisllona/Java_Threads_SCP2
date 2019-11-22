@@ -26,7 +26,8 @@ public class InvertedIndexConc{
     private RandomAccessFile randomInputFile;  // Fichero random para acceder al texto original con mayor porcentaje de matching.
     private int KeySize;            // Número de carácteres de la clave (k-word)
     private int nThreads;
-    public HashMultimap<String, Long> Hash = HashMultimap.create();    // Hash Map con el Índice Invertido.
+    public HashMultimap<String, Long> Hash = HashMultimap.create();  // Hash Map con el Índice Invertido.
+
     public int test = 69;
     // Constructores
     public InvertedIndexConc() {
@@ -64,49 +65,38 @@ public class InvertedIndexConc{
 
     /* Método para construir el indice invertido, utilizando un HashMap para almacenarlo en memoria */
 
-    /*public int getThreads(){
-        return this.nThreads;
-    }
-    public int getKey(){
-        return KeySize;
-    }*/
     public void BuildIndex()
     {
-        FileInputStream is;
-        long offset = -1;
-        int car;
-        String key="";
+        long charxThread = 0, initialchar = 0, finalchar, dif = 0;
+        ArrayList<MyThreadB> thr = new ArrayList<MyThreadB>();
+        File file = new File(InputFilePath);
 
-        try {
-            File file = new File(InputFilePath);
-            is = new FileInputStream(file);
-            // Leer fichero  a indexar carácter a carácter-
-            while((car = is.read())!=-1)
-            {
-                offset++;
-                if (car=='\n' || car=='\r' || car=='\t') {
-                    // Sustituimos los carácteres de \n,\r,\t en la clave por un espacio en blanco.
-                    if (key.length()==KeySize && key.charAt(KeySize-1)!=' ')
-                        key = key.substring(1, KeySize) + ' ';
-                    continue;
-                }
-                if (key.length()<KeySize)
-                    // Si la clave es menor de K, entonces le concatenamos el nuevo carácter leído.
-                    key = key + (char) car;
-                else
-                    // Si la clave es igua a K, entonces eliminaos su primier carácter y le concatenamos el nuevo carácter leído (implementamos una slidding window sobre el fichero a indexar).
-                    key = key.substring(1, KeySize) + (char) car;
+        long fileLen = file.length();
 
-                if (key.length()==KeySize)
-                    // Si tenemos una clave completa, la añadimos al Hash, junto a su desplazamiento dentro del fichero.
-                    AddKey(key, offset-KeySize+1);
+        while(fileLen>0){
+            fileLen-=nThreads;
+            charxThread++;
+        }
+        for (int i = 0; i < nThreads; i++){
+            finalchar = initialchar + charxThread - 1;
+            if(finalchar > file.length()){
+                dif = finalchar - file.length();
+                finalchar -= dif;
             }
-            is.close();
+            MyThreadB t = new MyThreadB(i, KeySize, file, initialchar, finalchar, Hash);
+            initialchar += charxThread;
+            thr.add(t); //añadimos el thread al array de threads
+            t.thread.start();
 
-        } catch (FileNotFoundException fnfE) {
-            System.err.println("Error opening Input file.");
-        }  catch (IOException ioE) {
-            System.err.println("Error read Input file.");
+        }
+        for (MyThreadB t : thr) {
+            try {
+                t.thread.join();
+                Hash.putAll(t.getHash());
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -178,11 +168,7 @@ public class InvertedIndexConc{
     }
     */
 
-    // Método que añade una k-word y su desplazamiento en el HashMap.
-    private void AddKey(String key, long offset){
-        Hash.put(key, offset);
-        System.out.print(offset+"\t-> "+key+"\r");
-    }
+
 
     // Método para imprimir por pantalla el índice invertido.
     public void PrintIndex() {
@@ -253,6 +239,7 @@ public class InvertedIndexConc{
 
     // Método para cargar en memoria (HashMap) el índice invertido desde su copia en disco.
     public void LoadIndex(String inputDirectory) {
+        HashMultimap<String, Long> newHash = HashMultimap.create();
         long filesxThread = 0, initialfile = 0, finalfile = 0, dif = 0;
         File folder = new File(inputDirectory);
         File[] listOfFiles = folder.listFiles();
@@ -282,11 +269,11 @@ public class InvertedIndexConc{
         for (MyThreadQ t : thr) {
             try {
                 t.thread.join();
+                Hash.putAll(t.getHash());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-
     }
 
     public void Query(String queryString) {
@@ -321,7 +308,6 @@ public class InvertedIndexConc{
             else
                 break;
         }
-
         try {
             randomInputFile.close();
         } catch (IOException e) {
