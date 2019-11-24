@@ -93,7 +93,6 @@ public class InvertedIndexConc{
             try {
                 t.thread.join();
                 Hash.putAll(t.getHash());
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

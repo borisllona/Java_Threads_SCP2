@@ -26,7 +26,7 @@ public class MyThreadB implements Runnable{
         this.file = file;
         this.initialChar = initialChar;
         this.finalChar = finalChar;
-        this.Hash = hash;
+        this.Hash = HashMultimap.create();
         this.KeySize = KeySize;
         this.n = "T" + number;
         System.out.println("Thread n" + number + " creado");
