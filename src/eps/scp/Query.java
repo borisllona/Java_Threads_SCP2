@@ -11,8 +11,8 @@ public class Query
     public static void main(String[] args)
     {
 
-        //sequential(args);
-        concurrent(args);
+        sequential(args);
+        //concurrent(args);
 
     }
 
