@@ -83,7 +83,7 @@ public class InvertedIndexConc{
                 dif = finalchar - file.length();
                 finalchar -= dif;
             }
-            MyThreadB t = new MyThreadB(i, KeySize, file, initialchar, finalchar, Hash);
+            MyThreadB t = new MyThreadB(i, KeySize, file, initialchar, finalchar);
             initialchar += charxThread;
             thr.add(t); //añadimos el thread al array de threads
             t.thread.start();
