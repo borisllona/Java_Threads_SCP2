@@ -10,9 +10,8 @@ public class Query
 
     public static void main(String[] args)
     {
-
-        sequential(args);
-        //concurrent(args);
+        //sequential(args);
+        concurrent(args);
 
     }
 
@@ -68,7 +67,7 @@ public class Query
         System.out.println("key: " + hash.getKey());*/
         hash.LoadIndex(indexDirectory);
         hash.SetFileName(fileName);
-       // hash.PrintIndex();
+        //hash.PrintIndex();
         hash.Query(queryString);
         long stopTime = System.nanoTime();
         System.out.println("Time: "+(stopTime - startTime)*pow(10,-9));

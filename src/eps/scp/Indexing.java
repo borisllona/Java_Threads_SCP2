@@ -6,8 +6,8 @@ public class Indexing {
 
     public static void main(String[] args)
     {
-        //sequential(args);
-        concurrent(args);
+        sequential(args);
+        //concurrent(args);
     }
     private static void sequential(String[] args){
         InvertedIndex hash;
